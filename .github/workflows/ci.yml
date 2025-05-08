@@ -3,27 +3,24 @@ name: build-and-deploy
 on:
   push:
     branches:
-      - master  # 如果你用的是 main，请替换这里
+      - master  # 或者你使用的主分支，如 main
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
 
     steps:
-      - name: Checkout source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js 16
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
-
-      - name: Fix openssl issue + remove node-sass
-        run: |
-          echo "NODE_OPTIONS=--openssl-legacy-provider" >> $GITHUB_ENV
-          npm uninstall node-sass || true
-          npm install sass
+          node-version: 16
+          cache: npm
 
       - name: Install dependencies
         run: npm install
