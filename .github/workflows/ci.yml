@@ -1,40 +1,35 @@
-name: Deploy Sapper to GitHub Pages
+name: build-and-deploy
 
 on:
   push:
     branches:
-      - master
-
-permissions:
-  contents: write
+      - master  # 或 main，根据你的默认分支而定
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
-
-    env:
-      NODE_OPTIONS: --openssl-legacy-provider
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 18
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build and export Sapper
+      - name: Install dependencies (use sass instead of node-sass)
         run: |
-          npm run build
-          npm run export
+          npm uninstall node-sass || true
+          npm install sass
+          npm install
+
+      - name: Build project
+        run: npm run export || npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./__sapper__/export
+          publish_dir: public
